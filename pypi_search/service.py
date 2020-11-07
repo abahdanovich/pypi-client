@@ -20,8 +20,15 @@ def get_sorted_packages(name_search: str, min_stars: int) -> List[Package]:
 
 
 def find_packages(name_search: str) -> Iterator[Package]:
-    search_phrase = name_search.lower()
-    matching_pkg_names: Iterator[str] = filter(lambda pkg_name: search_phrase in pkg_name.lower(), get_all_pkg_names())
+    search_phrases = name_search.lower().split(',')
+    def name_matches_phrases(pkg_name: str) -> bool:
+        return all(
+            search_phrase in pkg_name 
+            for search_phrase in search_phrases
+        )
+
+    all_pkg_names = [name.lower() for name in get_all_pkg_names()]
+    matching_pkg_names = [name for name in all_pkg_names if name_matches_phrases(name)]
 
     THREADS = 10
     with ThreadPoolExecutor(THREADS) as executor:
