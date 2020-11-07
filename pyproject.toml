@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "pypi-search"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+tabulate = "^0.8.7"
+requests = "^2.24.0"
+pypistats = "^0.12.1"
+lxml = "^4.6.1"
+diskcache = "^5.0.3"
+click = "^7.1.2"
+
+[tool.poetry.dev-dependencies]
+mypy = "^0.790"
+pylint = "^2.6.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
