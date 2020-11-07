@@ -1,10 +1,13 @@
+import json
 import logging
+from typing import List
 
 import click
 from tabulate import tabulate
 
 from .repo import cache
 from .service import get_sorted_packages
+from .types import Package
 
 
 def validate_pkg_name(ctx, param, value: str) -> str:
@@ -20,7 +23,8 @@ def validate_pkg_name(ctx, param, value: str) -> str:
 @click.option('--min-stars', type=click.IntRange(min=0), default=500)
 @click.option('--no-cache', type=click.BOOL, default=False)
 @click.option('--verbose', type=click.BOOL, default=False)
-def search(name_search: str, min_stars: int, no_cache: bool, verbose: bool):
+@click.option('--json', "as_json", is_flag=True, type=click.BOOL, default=False)
+def search(name_search: str, min_stars: int, no_cache: bool, verbose: bool, as_json: bool):
     """Search python package by name"""
 
     if no_cache:
@@ -30,6 +34,16 @@ def search(name_search: str, min_stars: int, no_cache: bool, verbose: bool):
         
     sorted_packages = get_sorted_packages(name_search, min_stars)
 
+    print_func = _print_as_json if as_json else _print_as_text
+    print_func(sorted_packages)
+
+
+def _print_as_json(sorted_packages: List[Package]):
+    for pkg in sorted_packages:
+        print(json.dumps(pkg.__dict__))
+
+
+def _print_as_text(sorted_packages: List[Package]):
     if pkg_count := len(sorted_packages):
         print(f'Found {pkg_count} packages:')
     else:

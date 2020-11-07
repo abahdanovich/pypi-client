@@ -52,7 +52,9 @@ def get_package_info(name: str) -> Package:
                 for vcs_name in ['github', 'bitbucket', 'gitlab']
             )
         ), None)
-        pkg.home_page = vcs_url or info.get('home_page')
+        home_page = vcs_url or info.get('home_page')
+        if home_page:
+            pkg.home_page = home_page
 
         releases = pypi_info.get('releases') or {}
         if num_releases := len(releases):
