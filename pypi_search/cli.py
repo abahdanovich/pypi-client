@@ -53,7 +53,7 @@ def _print_as_text(sorted_packages: List[Package]):
     columns = ['name', 'downloads', 'summary', 'version', 'home_page', 'stars', 'releases', 'last_release_date']
     print(tabulate([
         [getattr(pkg, col) for col in columns]
-        for pkg in sorted_packages
+        for pkg in reversed(sorted_packages)
     ], headers=columns))
 
 

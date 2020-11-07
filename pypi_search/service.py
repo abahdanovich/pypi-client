@@ -16,14 +16,14 @@ def get_sorted_packages(name_search: str, min_stars: int) -> List[Package]:
             and (p.downloads or 0) > 0
     ]
     sorted_packages = sorted(filtered_packages, key=lambda p: (p.downloads is not None, p.downloads))
-    return list(reversed(sorted_packages))
+    return list(sorted_packages)
 
 
 def find_packages(name_search: str) -> Iterator[Package]:
     search_phrase = name_search.lower()
     matching_pkg_names: Iterator[str] = filter(lambda pkg_name: search_phrase in pkg_name.lower(), get_all_pkg_names())
 
-    THREADS = 1
+    THREADS = 10
     with ThreadPoolExecutor(THREADS) as executor:
         return executor.map(get_package_info, matching_pkg_names)
 
