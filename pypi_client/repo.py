@@ -3,13 +3,14 @@ from typing import Iterator, Optional
 
 # import pypistats
 import requests
+from appdirs import user_cache_dir
 from diskcache import Cache
 from lxml import html
 
 from .config import GH_OAUTH_TOKEN
 from .types import GithubRepo, PypiEntry
 
-cache = Cache('/tmp')
+cache = Cache(user_cache_dir('pypi-client', 'PyPI'))
 
 
 def get_all_pkg_names() -> Iterator[str]:   
