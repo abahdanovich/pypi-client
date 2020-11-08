@@ -10,6 +10,11 @@ from .service import get_sorted_packages
 from .types import Package
 
 
+@click.group()
+def cli():
+    pass
+
+
 def validate_pkg_name(ctx, param, value: str) -> str:
     MIN_LEN = 4
     if len(value) < MIN_LEN:
@@ -18,7 +23,7 @@ def validate_pkg_name(ctx, param, value: str) -> str:
     return value   
 
 
-@click.command()
+@cli.command()
 @click.argument('name-search', callback=validate_pkg_name)
 @click.option('--min-stars', type=click.IntRange(min=0), default=500)
 @click.option('--no-cache', is_flag=True, type=click.BOOL, default=False)
@@ -58,4 +63,4 @@ def _print_as_text(sorted_packages: List[Package]):
 
 
 if __name__ == '__main__':
-    search()
+    cli()
