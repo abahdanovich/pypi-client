@@ -1,11 +1,11 @@
 [tool.poetry]
-name = "pypi-search"
+name = "pypi-client"
 version = "0.1.0"
 description = ""
 authors = ["Andrzej Bogdanowicz <bahdanovich@rtbhouse.com>"]
 
 packages = [
-    { include="pypi_search", from="." },
+    { include="pypi_client", from="." },
 ]
 
 [tool.poetry.dependencies]
@@ -27,4 +27,4 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-pypi-search = 'pypi_search.cli:cli'
+pypi-client = 'pypi_client.cli:cli'
