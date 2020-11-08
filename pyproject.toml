@@ -12,6 +12,7 @@ pypistats = "^0.12.1"
 lxml = "^4.6.1"
 diskcache = "^5.0.3"
 click = "^7.1.2"
+tqdm = "^4.51.0"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.790"

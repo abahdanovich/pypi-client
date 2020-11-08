@@ -1,14 +1,16 @@
 import warnings
-from concurrent.futures import ThreadPoolExecutor
-from typing import Iterator, List
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import Iterable, List
 
-from .repo import (get_pkg_downloads_info2, get_pkg_github_info,
-                   get_pkg_pypi_info, get_all_pkg_names)
+from tqdm import tqdm
+
+from .repo import (get_all_pkg_names, get_pkg_downloads_info2,
+                   get_pkg_github_info, get_pkg_pypi_info)
 from .types import Package
 
 
-def get_sorted_packages(name_search: str, min_stars: int) -> List[Package]:
-    packages = find_packages(name_search)
+def get_sorted_packages(name_search: str, min_stars: int, show_progress_indicator: bool) -> List[Package]:
+    packages = find_packages(name_search, show_progress_indicator)
     filtered_packages = [
         p for p in packages 
         if (p.stars is None or (p.stars >= min_stars))
@@ -19,7 +21,7 @@ def get_sorted_packages(name_search: str, min_stars: int) -> List[Package]:
     return list(sorted_packages)
 
 
-def find_packages(name_search: str) -> Iterator[Package]:
+def find_packages(name_search: str, show_progress_indicator) -> List[Package]:
     search_phrases = name_search.lower().split(',')
     def name_matches_phrases(pkg_name: str) -> bool:
         return all(
@@ -29,10 +31,25 @@ def find_packages(name_search: str) -> Iterator[Package]:
 
     all_pkg_names = [name.lower() for name in get_all_pkg_names()]
     matching_pkg_names = [name for name in all_pkg_names if name_matches_phrases(name)]
+    with_progress = progress_indicator(len(matching_pkg_names)) if show_progress_indicator else iter
 
     THREADS = 10
     with ThreadPoolExecutor(THREADS) as executor:
-        return executor.map(get_package_info, matching_pkg_names)
+        futures = [
+            executor.submit(get_package_info, pkg_name) 
+            for pkg_name in matching_pkg_names
+        ]
+
+        return [
+            future.result() 
+            for future in with_progress(as_completed(futures))
+        ]
+
+
+def progress_indicator(total: int):
+    def indicator_fn(iterable: Iterable) -> Iterable:
+        return tqdm(iterable=iterable, total=total)
+    return indicator_fn
 
 
 def get_package_info(name: str) -> Package:

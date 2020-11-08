@@ -21,8 +21,8 @@ def validate_pkg_name(ctx, param, value: str) -> str:
 @click.command()
 @click.argument('name-search', callback=validate_pkg_name)
 @click.option('--min-stars', type=click.IntRange(min=0), default=500)
-@click.option('--no-cache', type=click.BOOL, default=False)
-@click.option('--verbose', type=click.BOOL, default=False)
+@click.option('--no-cache', is_flag=True, type=click.BOOL, default=False)
+@click.option('--verbose', is_flag=True, type=click.BOOL, default=False)
 @click.option('--json', "as_json", is_flag=True, type=click.BOOL, default=False)
 def search(name_search: str, min_stars: int, no_cache: bool, verbose: bool, as_json: bool):
     """Search python package by name"""
@@ -32,7 +32,7 @@ def search(name_search: str, min_stars: int, no_cache: bool, verbose: bool, as_j
 
     logging.basicConfig(level=logging.DEBUG if verbose else logging.INFO)
         
-    sorted_packages = get_sorted_packages(name_search, min_stars)
+    sorted_packages = get_sorted_packages(name_search, min_stars, not as_json)
 
     print_func = _print_as_json if as_json else _print_as_text
     print_func(sorted_packages)
