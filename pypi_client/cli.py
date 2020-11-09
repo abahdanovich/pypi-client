@@ -5,6 +5,7 @@ from typing import List
 import click
 from tabulate import tabulate
 
+from .github_auth import github_device_flow
 from .repo import cache
 from .service import get_sorted_packages
 from .types import Package
@@ -13,6 +14,14 @@ from .types import Package
 @click.group()
 def cli():
     pass
+
+
+@cli.command()
+def auth_github():
+    """Log into GitHub"""
+    with github_device_flow() as verif_codes:
+        print(f'Please open {verif_codes["verification_uri"]} and enter code: {verif_codes["user_code"]}')
+    print('Success')
 
 
 def validate_pkg_name(ctx, param, value: str) -> str:
