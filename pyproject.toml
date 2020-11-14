@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pypi-client"
-version = "0.1.5"
+version = "0.1.6"
 description = "PyPI command-line tool"
 license = "MIT"
 authors = ["Andrzej Bogdanowicz <bahdanovich@rtbhouse.com>"]
@@ -27,6 +27,7 @@ appdirs = "^1.4.4"
 [tool.poetry.dev-dependencies]
 mypy = "^0.790"
 pylint = "^2.6.0"
+pytest = "^6.1.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

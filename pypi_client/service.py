@@ -127,9 +127,11 @@ def _get_score(package: Package) -> int:
         score += 2
     elif days_from_last_release <= 120:
         score += 1
-    elif days_from_last_release > 180:
-        score -= 1    
-    elif days_from_last_release > 360:
+    elif days_from_last_release <= 180:
+        pass
+    elif days_from_last_release <= 270:
+        score -= 1
+    elif days_from_last_release <= 360:
         score -= 2
     else:
         score -= 3    
