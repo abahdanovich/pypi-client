@@ -1,12 +1,19 @@
 [tool.poetry]
 name = "pypi-client"
-version = "0.1.0"
-description = ""
+version = "0.1.1"
+description = "PyPI command-line tool"
+license = "MIT"
 authors = ["Andrzej Bogdanowicz <bahdanovich@rtbhouse.com>"]
+readme = "README.md"
+repository = "https://github.com/abahdanovich/pypi-client"
+keywords = ["pypi", "client", "cli", "github", "search"]
 
 packages = [
     { include="pypi_client", from="." },
 ]
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/abahdanovich/pypi-client/issues"
 
 [tool.poetry.dependencies]
 python = "^3.9"
