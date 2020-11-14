@@ -1,5 +1,7 @@
+import math
 import warnings
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import date
 from typing import Iterable, List
 
 from tqdm import tqdm
@@ -7,18 +9,6 @@ from tqdm import tqdm
 from .repo import (get_all_pkg_names, get_pkg_downloads_info2,
                    get_pkg_github_info, get_pkg_pypi_info)
 from .types import Package
-
-
-def get_sorted_packages(name_search: str, min_stars: int, show_progress_indicator: bool) -> List[Package]:
-    packages = find_packages(name_search, show_progress_indicator)
-    filtered_packages = [
-        p for p in packages 
-        if (p.stars is None or (p.stars >= min_stars))
-            and p.last_release_date
-            and (p.downloads or 0) > 0
-    ]
-    sorted_packages = sorted(filtered_packages, key=lambda p: (p.downloads is not None, p.downloads))
-    return list(sorted_packages)
 
 
 def find_packages(name_search: str, show_progress_indicator) -> List[Package]:
@@ -62,7 +52,7 @@ def get_package_info(name: str) -> Package:
     else:
         info = pypi_info.get('info') or {}
         if summary := info.get('summary'):
-            pkg.summary = summary[:100]
+            pkg.summary = summary
         pkg.version = info.get('version')
 
         vcs_urls = [
@@ -105,4 +95,35 @@ def get_package_info(name: str) -> Package:
         else:
             pkg.stars = github_info.get('stargazers_count')
 
+    pkg.score = _get_score(pkg)
+
     return pkg
+
+
+def _get_score(package: Package) -> int:
+    if not package.last_release_date:
+        return 0
+
+    score: float = 0
+
+    if package.downloads:
+        score += math.log10(package.downloads)
+
+    if package.stars:   
+        score +=  math.log2(package.stars)
+
+    days_from_last_release = (date.today() - date.fromisoformat(package.last_release_date)).days
+    if days_from_last_release <= 30:
+        score += 3
+    elif days_from_last_release <= 60:
+        score += 2
+    elif days_from_last_release <= 120:
+        score += 1
+    elif days_from_last_release > 180:
+        score -= 1    
+    elif days_from_last_release > 360:
+        score -= 2
+    else:
+        score -= 3    
+
+    return round(score)

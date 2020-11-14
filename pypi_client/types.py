@@ -11,6 +11,7 @@ class Package:
     stars: Optional[int] = None
     releases: Optional[int] = None
     last_release_date: Optional[str] = None
+    score: Optional[int] = None
 
 
 class PypiProjectUrls(TypedDict):
