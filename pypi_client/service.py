@@ -2,16 +2,14 @@ import math
 import warnings
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date
-from typing import Iterable, List, Callable
+from typing import List
 
-from tqdm import tqdm
-
-from .repo import (get_all_pkg_names, get_pkg_downloads_info2,
+from .repo import (get_all_pkg_names, get_pkg_downloads_info,
                    get_pkg_github_info, get_pkg_pypi_info)
-from .types import Package
+from .types import Package, ProgressBar
 
 
-def find_packages(name_search: str, show_progress_indicator: bool) -> List[Package]:
+def find_packages(name_search: str, progressbar: ProgressBar) -> List[Package]:
     search_phrases = name_search.lower().split(',')
     def name_matches_phrases(pkg_name: str) -> bool:
         return all(
@@ -21,7 +19,6 @@ def find_packages(name_search: str, show_progress_indicator: bool) -> List[Packa
 
     all_pkg_names = [name.lower() for name in get_all_pkg_names()]
     matching_pkg_names = [name for name in all_pkg_names if name_matches_phrases(name)]
-    with_progress = progress_indicator(len(matching_pkg_names)) if show_progress_indicator else iter
 
     THREADS = 10
     with ThreadPoolExecutor(THREADS) as executor:
@@ -30,16 +27,11 @@ def find_packages(name_search: str, show_progress_indicator: bool) -> List[Packa
             for pkg_name in matching_pkg_names
         ]
 
-        return [
-            future.result() 
-            for future in with_progress(as_completed(futures))
-        ]
-
-
-def progress_indicator(total: int) -> Callable[[Iterable], Iterable]:
-    def indicator_fn(iterable: Iterable) -> Iterable:
-        return tqdm(iterable=iterable, total=total)
-    return indicator_fn
+        with progressbar(as_completed(futures), len(futures)) as bar:
+            return [
+                future.result() 
+                for future in bar
+            ]
 
 
 def get_package_info(name: str) -> Package:
@@ -83,7 +75,7 @@ def get_package_info(name: str) -> Package:
 
     if pkg.releases:
         try:
-            pkg.downloads = get_pkg_downloads_info2(name)
+            pkg.downloads = get_pkg_downloads_info(name)
         except Exception as e:
             warnings.warn(f'failed to get downloads info for {name}: {e}', RuntimeWarning)
 

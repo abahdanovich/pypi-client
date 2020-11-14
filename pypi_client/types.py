@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Dict, List, Optional, TypedDict
+from typing import (Callable, ContextManager, Dict, Iterable, List, Optional,
+                    TypedDict, TypeVar)
 
 
 @dataclass
@@ -34,3 +35,8 @@ class PypiEntry(TypedDict):
 
 class GithubRepo(TypedDict):
     stargazers_count: Optional[int]
+
+
+# Progress bar
+Item = TypeVar('Item')
+ProgressBar = Callable[[Iterable[Item], int], ContextManager[Iterable[Item]]]

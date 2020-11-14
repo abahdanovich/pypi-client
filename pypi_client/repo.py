@@ -2,7 +2,6 @@ import functools
 import logging
 from typing import Iterator, Optional
 
-# import pypistats
 import requests
 from appdirs import user_cache_dir
 from diskcache import Cache
@@ -36,22 +35,9 @@ def get_pkg_pypi_info(pkg_name: str) -> Optional[PypiEntry]:
     return response.json()    
 
 
-# @cache.memoize()
-# def get_pkg_downloads_info1(pkg_name: str) -> Optional[dict]:
-#     logging.debug(f'get_pkg_downloads_info1 for {pkg_name}')
-#     try:
-#         body = json.loads(pypistats.recent(pkg_name, format="json"))
-#     except requests.exceptions.HTTPError as e:
-#         if e.response.status_code == 404:
-#             return
-#         raise e
-#     data = body.get('data') or {}
-#     return data.get('last_month')
-
-
 @cache.memoize()
-def get_pkg_downloads_info2(pkg_name: str) -> Optional[int]:
-    logging.debug(f'get_pkg_downloads_info2 for {pkg_name}')
+def get_pkg_downloads_info(pkg_name: str) -> Optional[int]:
+    logging.debug(f'get_pkg_downloads_info for {pkg_name}')
     url = 'https://api.pepy.tech/api/v2/projects/' + pkg_name
     response = requests.get(url)
     if response.status_code == 404:

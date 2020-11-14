@@ -1,5 +1,6 @@
 import json
 import logging
+from importlib.metadata import version
 from operator import attrgetter
 from typing import Any, List, Optional, TypeVar
 
@@ -13,6 +14,7 @@ from .types import Package
 
 
 @click.group()
+@click.version_option(version('pypi-client'))
 def cli() -> None:
     pass
 
@@ -47,7 +49,7 @@ def search(name_search: str, limit: int, no_cache: bool, verbose: bool, as_json:
 
     logging.basicConfig(level=logging.DEBUG if verbose else logging.INFO)
         
-    sorted_packages = list(reversed(sorted(find_packages(name_search, not as_json), key=attrgetter('score'))))
+    sorted_packages = list(reversed(sorted(find_packages(name_search, click.progressbar), key=attrgetter('score'))))
     if limit:
         sorted_packages = sorted_packages[:limit]
 
