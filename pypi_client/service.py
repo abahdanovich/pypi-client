@@ -1,15 +1,18 @@
+import logging
 import math
-import warnings
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import date
+from datetime import date, timedelta
 from typing import List
 
-from .repo import (get_all_pkg_names, get_pkg_downloads_info,
-                   get_pkg_github_info, get_pkg_pypi_info)
+from requests.exceptions import HTTPError
+
+from .repo import (get_all_pkg_names, get_pkg_stats,
+                   get_pkg_github_repo, get_pkg_pypi_entry)
 from .types import Package, ProgressBar
+from .types.pypi_entry import PypiEntry, PypiPackageInfo, PypiProjectUrls
 
 
-def find_packages(name_search: str, progressbar: ProgressBar) -> List[Package]:
+def find_packages(name_search: str, progressbar: ProgressBar, threads: int = 10) -> List[Package]:
     search_phrases = name_search.lower().split(',')
     def name_matches_phrases(pkg_name: str) -> bool:
         return all(
@@ -20,8 +23,7 @@ def find_packages(name_search: str, progressbar: ProgressBar) -> List[Package]:
     all_pkg_names = [name.lower() for name in get_all_pkg_names()]
     matching_pkg_names = [name for name in all_pkg_names if name_matches_phrases(name)]
 
-    THREADS = 10
-    with ThreadPoolExecutor(THREADS) as executor:
+    with ThreadPoolExecutor(threads) as executor:
         futures = [
             executor.submit(get_package_info, pkg_name) 
             for pkg_name in matching_pkg_names
@@ -38,17 +40,20 @@ def get_package_info(name: str) -> Package:
     pkg = Package(name=name)
 
     try:
-        pypi_info = get_pkg_pypi_info(name) or {}
-    except Exception as e:
-        warnings.warn(f'failed to get pypi info for {name}: {e}', RuntimeWarning)
+        pypi_info: PypiEntry = get_pkg_pypi_entry(name)
+    except HTTPError as e:
+        logging.warn(f'failed to get pypi info for {name}: {e}', RuntimeWarning)
     else:
-        info = pypi_info.get('info') or {}
+        info = pypi_info.get('info') or PypiPackageInfo(
+            summary=None, version=None, project_urls=None, home_page=None
+        )
         if summary := info.get('summary'):
             pkg.summary = summary
         pkg.version = info.get('version')
 
+        urls = info.get('project_urls') or PypiProjectUrls(Source=None)
         vcs_urls = [
-            (info.get('project_urls') or {}).get('Source'),
+            urls.get('Source'),
             info.get('home_page')
         ]
         vcs_url = next(iter(
@@ -66,26 +71,35 @@ def get_package_info(name: str) -> Package:
         releases = pypi_info.get('releases') or {}
         if num_releases := len(releases):
             pkg.releases = num_releases
-            if upload_times := [
-                upload.get('upload_time') 
+            if upload_days := [
+                (upload.get('upload_time') or '')[:10] 
                 for uploads in releases.values()
                 for upload in uploads
             ]:
-                pkg.last_release_date = max(upload_times)[:10]
+                pkg.last_release_date = max(upload_days)
 
     if pkg.releases:
         try:
-            pkg.downloads = get_pkg_downloads_info(name)
-        except Exception as e:
-            warnings.warn(f'failed to get downloads info for {name}: {e}', RuntimeWarning)
+            stats = get_pkg_stats(name)
+            all_downloads = stats['downloads']
+            day_from = str(date.today() - timedelta(days=90))
+            recent_downloads: int = sum([
+                sum((cnt for version, cnt in (version_downloads or {}).items()), 0)
+                for day_str, version_downloads in all_downloads.items()
+                if day_str > day_from
+            ], 0)
+
+            pkg.downloads = recent_downloads
+        except HTTPError as e:
+            logging.warn(f'failed to get downloads info for {name}: {e}', RuntimeWarning)
 
     if pkg.home_page and ('github.com' in pkg.home_page):
         try:
-            github_info = get_pkg_github_info(pkg.home_page) or {}
-        except Exception as e:
-            warnings.warn(f'failed to get github info for {name}: {e}', RuntimeWarning)
+            github_repo = get_pkg_github_repo(pkg.home_page)
+        except HTTPError as e:
+            logging.warn(f'failed to get github info for {name}: {e}', RuntimeWarning)
         else:
-            pkg.stars = github_info.get('stargazers_count')
+            pkg.stars = github_repo['stargazers_count']
 
     pkg.score = _get_score(pkg)
 

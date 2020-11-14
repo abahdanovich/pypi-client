@@ -1,22 +1,18 @@
 import logging
 import time
 from contextlib import contextmanager
-from typing import TypedDict, Generator
+from typing import Generator
 from urllib import parse
 
 import requests
 
+from .types import DeviceFlowVerificationCodes
 from .user_config import write_oauth_token
 
 CLIENT_ID = 'da5e9528b63f1bd10fd8'
 
 
-class DeviceFlowVerificationCodes(TypedDict):
-    device_code: str
-    user_code: str
-    verification_uri: str
-    expires_in: int
-    interval: int
+
 
 
 @contextmanager

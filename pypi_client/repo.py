@@ -1,13 +1,15 @@
 import functools
 import logging
-from typing import Iterator, Optional
+from typing import Iterator
 
 import requests
 from appdirs import user_cache_dir
 from diskcache import Cache
 from lxml import html
 
-from .types import GithubRepo, PypiEntry
+from .types.github_repo import GithubRepo
+from .types.pypi_entry import PypiEntry
+from .types.pepy_tech import PackageStats
 from .user_config import read_oauth_token
 
 cache = Cache(user_cache_dir('pypi-client', 'PyPI'))
@@ -19,42 +21,36 @@ def get_all_pkg_names() -> Iterator[str]:
 
 
 @cache.memoize()
-def _get_all_pkgs_html() -> bytes:
+def _get_all_pkgs_html() -> str:
     logging.debug('get_all_pkgs_html')
     response = requests.get("https://pypi.org/simple/")
-    return response.content 
+    response.raise_for_status()
+    return response.text 
 
 
 @cache.memoize()
-def get_pkg_pypi_info(pkg_name: str) -> Optional[PypiEntry]:
-    logging.debug(f'get_pkg_pypi_info for {pkg_name}')
+def get_pkg_pypi_entry(pkg_name: str) -> PypiEntry:
+    logging.debug(f'get_pkg_pypi_entry for {pkg_name}')
     response = requests.get(f'https://pypi.org/pypi/{pkg_name}/json')
-    if response.status_code == 404:
-        return None
     response.raise_for_status()
     return response.json()    
 
 
 @cache.memoize()
-def get_pkg_downloads_info(pkg_name: str) -> Optional[int]:
-    logging.debug(f'get_pkg_downloads_info for {pkg_name}')
+def get_pkg_stats(pkg_name: str, last_days: int = 90) -> PackageStats:
+    logging.debug(f'get_pkg_stats for {pkg_name}')
     url = 'https://api.pepy.tech/api/v2/projects/' + pkg_name
     response = requests.get(url)
-    if response.status_code == 404:
-        return None
     response.raise_for_status()
-    body = response.json()
-    return body.get('total_downloads')
+    return response.json()
 
 
 @cache.memoize()
-def get_pkg_github_info(pkg_repo: str) -> Optional[GithubRepo]:
-    logging.debug(f'get_pkg_github_info for {pkg_repo}')
+def get_pkg_github_repo(pkg_repo: str) -> GithubRepo:
+    logging.debug(f'get_pkg_github_repo for {pkg_repo}')
     repo_name = pkg_repo.strip('/').split('/')[-2:]
     url = 'https://api.github.com/repos/' + '/'.join(repo_name)
     response = requests.get(url, auth=('token', _get_github_oauth_token()))
-    if response.status_code == 404:
-        return None
     response.raise_for_status()
     return response.json()
 

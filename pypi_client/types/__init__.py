@@ -16,27 +16,14 @@ class Package:
     score: Optional[int] = None
 
 
-class PypiProjectUrls(TypedDict):
-    Source: Optional[str]
-
-class PypiPackageInfo(TypedDict):
-    summary: Optional[str]
-    version: Optional[str] 
-    project_urls: Optional[PypiProjectUrls]
-    home_page: Optional[str]
-
-class PypiReleaseUpload(TypedDict):
-    upload_time: Optional[str]
-
-class PypiEntry(TypedDict):
-    info: Optional[PypiPackageInfo]
-    releases: Optional[Dict[str, List[PypiReleaseUpload]]]
-
-
-class GithubRepo(TypedDict):
-    stargazers_count: Optional[int]
-
-
 # Progress bar
 Item = TypeVar('Item')
 ProgressBar = Callable[[Iterable[Item], int], ContextManager[Iterable[Item]]]
+
+
+class DeviceFlowVerificationCodes(TypedDict):
+    device_code: str
+    user_code: str
+    verification_uri: str
+    expires_in: int
+    interval: int

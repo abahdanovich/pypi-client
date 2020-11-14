@@ -41,15 +41,17 @@ def validate_pkg_name(ctx: Any, param: Any, value: str) -> str:
 @click.option('--no-cache', is_flag=True, type=click.BOOL, default=False)
 @click.option('--verbose', is_flag=True, type=click.BOOL, default=False)
 @click.option('--json', "as_json", is_flag=True, type=click.BOOL, default=False)
-def search(name_search: str, limit: int, no_cache: bool, verbose: bool, as_json: bool) -> None:
+@click.option('--threads', type=click.INT, default=10)
+def search(name_search: str, limit: int, no_cache: bool, verbose: bool, as_json: bool, threads: int) -> None:
     """Search python package by name"""
 
     if no_cache:
         cache.clear()
 
-    logging.basicConfig(level=logging.DEBUG if verbose else logging.INFO)
+    logging.basicConfig(level=logging.DEBUG if verbose else logging.ERROR)
         
-    sorted_packages = list(reversed(sorted(find_packages(name_search, click.progressbar), key=attrgetter('score'))))
+    found_packages = find_packages(name_search, click.progressbar, threads)
+    sorted_packages = list(reversed(sorted(found_packages, key=attrgetter('score'))))
     if limit:
         sorted_packages = sorted_packages[:limit]
 
