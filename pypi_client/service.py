@@ -6,9 +6,11 @@ from typing import List
 
 from requests.exceptions import HTTPError
 
-from .repo import (get_all_pkg_names, get_pkg_stats,
-                   get_pkg_github_repo, get_pkg_pypi_entry)
+from .repo import (get_all_pkg_names, get_pkg_github_repo, get_pkg_pypi_entry,
+                   get_pkg_stats)
 from .types import Package, ProgressBar
+from .types.github_repo import GithubRepo
+from .types.pepy_tech import PackageStats
 from .types.pypi_entry import PypiEntry, PypiPackageInfo, PypiProjectUrls
 
 
@@ -80,7 +82,7 @@ def get_package_info(name: str) -> Package:
 
     if pkg.releases:
         try:
-            stats = get_pkg_stats(name)
+            stats: PackageStats = get_pkg_stats(name)
             all_downloads = stats['downloads']
             day_from = str(date.today() - timedelta(days=90))
             recent_downloads: int = sum([
@@ -95,7 +97,7 @@ def get_package_info(name: str) -> Package:
 
     if pkg.home_page and ('github.com' in pkg.home_page):
         try:
-            github_repo = get_pkg_github_repo(pkg.home_page)
+            github_repo: GithubRepo = get_pkg_github_repo(pkg.home_page)
         except HTTPError as e:
             logging.warn(f'failed to get github info for {name}: {e}', RuntimeWarning)
         else:
