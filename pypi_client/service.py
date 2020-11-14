@@ -2,7 +2,7 @@ import math
 import warnings
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date
-from typing import Iterable, List
+from typing import Iterable, List, Callable
 
 from tqdm import tqdm
 
@@ -11,7 +11,7 @@ from .repo import (get_all_pkg_names, get_pkg_downloads_info2,
 from .types import Package
 
 
-def find_packages(name_search: str, show_progress_indicator) -> List[Package]:
+def find_packages(name_search: str, show_progress_indicator: bool) -> List[Package]:
     search_phrases = name_search.lower().split(',')
     def name_matches_phrases(pkg_name: str) -> bool:
         return all(
@@ -36,7 +36,7 @@ def find_packages(name_search: str, show_progress_indicator) -> List[Package]:
         ]
 
 
-def progress_indicator(total: int):
+def progress_indicator(total: int) -> Callable[[Iterable], Iterable]:
     def indicator_fn(iterable: Iterable) -> Iterable:
         return tqdm(iterable=iterable, total=total)
     return indicator_fn

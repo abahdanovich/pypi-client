@@ -1,6 +1,7 @@
+import logging
 import time
 from contextlib import contextmanager
-from typing import TypedDict, cast
+from typing import TypedDict, Generator
 from urllib import parse
 
 import requests
@@ -19,7 +20,7 @@ class DeviceFlowVerificationCodes(TypedDict):
 
 
 @contextmanager
-def github_device_flow():
+def github_device_flow() -> Generator[DeviceFlowVerificationCodes, None, None]:
     verif_codes = _get_verification_codes()
     yield verif_codes
     access_token = _wait_for_authorization(verif_codes['device_code'], verif_codes['expires_in'], verif_codes['interval'])
@@ -47,6 +48,7 @@ def _wait_for_authorization(device_code: str, expires_in: int, sleep_interval: i
         try:
             return _get_access_token(device_code)
         except Exception as e:
+            logging.debug(e)
             time.sleep(sleep_interval)
             expires_in -= sleep_interval
     else:

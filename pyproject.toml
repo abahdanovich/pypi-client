@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pypi-client"
-version = "0.1.2"
+version = "0.1.3"
 description = "PyPI command-line tool"
 license = "MIT"
 authors = ["Andrzej Bogdanowicz <bahdanovich@rtbhouse.com>"]
@@ -16,7 +16,7 @@ packages = [
 "Bug Tracker" = "https://github.com/abahdanovich/pypi-client/issues"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = ">=3.8"
 tabulate = "^0.8.7"
 requests = "^2.24.0"
 pypistats = "^0.12.1"

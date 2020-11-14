@@ -1,7 +1,7 @@
 import json
 import logging
 from operator import attrgetter
-from typing import List, Optional
+from typing import Any, List, Optional, TypeVar
 
 import click
 from tabulate import tabulate
@@ -13,19 +13,19 @@ from .types import Package
 
 
 @click.group()
-def cli():
+def cli() -> None:
     pass
 
 
 @cli.command()
-def auth_github():
+def auth_github() -> None:
     """Log into GitHub"""
     with github_device_flow() as verif_codes:
         print(f'Please open {verif_codes["verification_uri"]} and enter code: {verif_codes["user_code"]}')
     print('Success')
 
 
-def validate_pkg_name(ctx, param, value: str) -> str:
+def validate_pkg_name(ctx: Any, param: Any, value: str) -> str:
     MIN_LEN = 4
     if len(value) < MIN_LEN:
         raise click.BadParameter(f'name too short, min length={MIN_LEN}')
@@ -39,7 +39,7 @@ def validate_pkg_name(ctx, param, value: str) -> str:
 @click.option('--no-cache', is_flag=True, type=click.BOOL, default=False)
 @click.option('--verbose', is_flag=True, type=click.BOOL, default=False)
 @click.option('--json', "as_json", is_flag=True, type=click.BOOL, default=False)
-def search(name_search: str, limit: int, no_cache: bool, verbose: bool, as_json: bool):
+def search(name_search: str, limit: int, no_cache: bool, verbose: bool, as_json: bool) -> None:
     """Search python package by name"""
 
     if no_cache:
@@ -55,12 +55,12 @@ def search(name_search: str, limit: int, no_cache: bool, verbose: bool, as_json:
     print_func(sorted_packages)
 
 
-def _print_as_json(sorted_packages: List[Package]):
+def _print_as_json(sorted_packages: List[Package]) -> None:
     for pkg in sorted_packages:
         print(json.dumps(pkg.__dict__))
 
 
-def _print_as_text(sorted_packages: List[Package]):
+def _print_as_text(sorted_packages: List[Package]) -> None:
     if pkg_count := len(sorted_packages):
         print(f'Found {pkg_count} packages:')
     else:
@@ -74,11 +74,12 @@ def _print_as_text(sorted_packages: List[Package]):
         'home_page': 50
     }
 
-    def _enforse_max_width(val, max_width: Optional[int]):
-        if max_width and type(val) == str and len(val) > max_width:
+    Val = TypeVar('Val', str, int)
+    def _enforse_max_width(val: Val, max_width: Optional[int]) -> Val:
+        if max_width and isinstance(val, str) and len(val) > max_width:
             return val[:max_width] + '...'
-        else:
-            return val
+        
+        return val
 
 
     print(tabulate([

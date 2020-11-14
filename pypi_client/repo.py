@@ -31,7 +31,7 @@ def get_pkg_pypi_info(pkg_name: str) -> Optional[PypiEntry]:
     logging.debug(f'get_pkg_pypi_info for {pkg_name}')
     response = requests.get(f'https://pypi.org/pypi/{pkg_name}/json')
     if response.status_code == 404:
-        return
+        return None
     response.raise_for_status()
     return response.json()    
 
@@ -55,7 +55,7 @@ def get_pkg_downloads_info2(pkg_name: str) -> Optional[int]:
     url = 'https://api.pepy.tech/api/v2/projects/' + pkg_name
     response = requests.get(url)
     if response.status_code == 404:
-        return
+        return None
     response.raise_for_status()
     body = response.json()
     return body.get('total_downloads')
@@ -68,11 +68,11 @@ def get_pkg_github_info(pkg_repo: str) -> Optional[GithubRepo]:
     url = 'https://api.github.com/repos/' + '/'.join(repo_name)
     response = requests.get(url, auth=('token', _get_github_oauth_token()))
     if response.status_code == 404:
-        return
+        return None
     response.raise_for_status()
     return response.json()
 
 
-@functools.cache
-def _get_github_oauth_token():
+@functools.lru_cache(maxsize=None)
+def _get_github_oauth_token() -> str:
     return read_oauth_token()

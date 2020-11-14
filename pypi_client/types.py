@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Optional, TypedDict, List, Dict
+from typing import Dict, List, Optional, TypedDict
+
 
 @dataclass
 class Package:
