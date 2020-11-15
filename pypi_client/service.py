@@ -62,16 +62,19 @@ def get_package_info(name: str) -> Package:
         releases = pypi_info.releases
         if num_releases := len(releases):
             pkg.releases = num_releases
-            if upload_days := [
+            if upload_days := {
                 upload.upload_time[:10] 
                 for uploads in releases.values()
                 for upload in uploads
-            ]:
+            }:
                 pkg.last_release_date = max(upload_days)
 
     if pkg.releases:
         try:
             stats: PackageStats = get_pkg_stats(name)
+        except HTTPError as e:
+            logging.warn(f'failed to get downloads info for {name}: {e}', RuntimeWarning)
+        else:
             all_downloads = stats.downloads
             day_from = str(date.today() - timedelta(days=90))
             recent_downloads: int = sum([
@@ -81,8 +84,7 @@ def get_package_info(name: str) -> Package:
             ], 0)
 
             pkg.downloads = recent_downloads
-        except HTTPError as e:
-            logging.warn(f'failed to get downloads info for {name}: {e}', RuntimeWarning)
+        
 
     if pkg.home_page and ('github.com' in pkg.home_page):
         try:
