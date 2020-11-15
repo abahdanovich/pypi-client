@@ -1,5 +1,7 @@
-from typing import Dict, TypedDict
+from typing import Dict
+
+from pydantic import BaseModel  # pylint: disable=no-name-in-module
 
 
-class PackageStats(TypedDict):
+class PackageStats(BaseModel):
     downloads: Dict[str, Dict[str, int]]

@@ -11,7 +11,7 @@ from .repo import (get_all_pkg_names, get_pkg_github_repo, get_pkg_pypi_entry,
 from .types import Package, ProgressBar
 from .types.github_repo import GithubRepo
 from .types.pepy_tech import PackageStats
-from .types.pypi_entry import PypiEntry, PypiPackageInfo, PypiProjectUrls
+from .types.pypi_entry import PypiEntry
 
 
 def find_packages(name_search: str, progressbar: ProgressBar, threads: int = 10) -> List[Package]:
@@ -46,35 +46,24 @@ def get_package_info(name: str) -> Package:
     except HTTPError as e:
         logging.warn(f'failed to get pypi info for {name}: {e}', RuntimeWarning)
     else:
-        info = pypi_info.get('info') or PypiPackageInfo(
-            summary=None, version=None, project_urls=None, home_page=None
-        )
-        if summary := info.get('summary'):
-            pkg.summary = summary
-        pkg.version = info.get('version')
+        info = pypi_info.info
+        pkg.summary = info.summary
+        pkg.version = info.version
+        pkg.home_page = info.home_page
 
-        urls = info.get('project_urls') or PypiProjectUrls(Source=None)
-        vcs_urls = [
-            urls.get('Source'),
-            info.get('home_page')
-        ]
-        vcs_url = next(iter(
-            url
-            for url in vcs_urls
-            if url and any(
-                vcs_name in url 
-                for vcs_name in ['github', 'bitbucket', 'gitlab']
-            )
-        ), None)
-        home_page = vcs_url or info.get('home_page')
-        if home_page:
-            pkg.home_page = home_page
+        if info.project_urls:
+            src_url = info.project_urls.Source
+            if src_url and any(
+                    vcs_name in src_url 
+                    for vcs_name in ['github', 'bitbucket', 'gitlab']
+                ):
+                pkg.home_page = src_url
 
-        releases = pypi_info.get('releases') or {}
+        releases = pypi_info.releases
         if num_releases := len(releases):
             pkg.releases = num_releases
             if upload_days := [
-                (upload.get('upload_time') or '')[:10] 
+                upload.upload_time[:10] 
                 for uploads in releases.values()
                 for upload in uploads
             ]:
@@ -83,10 +72,10 @@ def get_package_info(name: str) -> Package:
     if pkg.releases:
         try:
             stats: PackageStats = get_pkg_stats(name)
-            all_downloads = stats['downloads']
+            all_downloads = stats.downloads
             day_from = str(date.today() - timedelta(days=90))
             recent_downloads: int = sum([
-                sum((cnt for version, cnt in (version_downloads or {}).items()), 0)
+                sum(version_downloads.values(), 0)
                 for day_str, version_downloads in all_downloads.items()
                 if day_str > day_from
             ], 0)
@@ -101,7 +90,7 @@ def get_package_info(name: str) -> Package:
         except HTTPError as e:
             logging.warn(f'failed to get github info for {name}: {e}', RuntimeWarning)
         else:
-            pkg.stars = github_repo['stargazers_count']
+            pkg.stars = github_repo.stargazers_count
 
     pkg.score = _get_score(pkg)
 

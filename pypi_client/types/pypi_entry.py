@@ -1,18 +1,24 @@
-from typing import Dict, List, Optional, TypedDict
+from typing import Dict, List, Optional
+
+from pydantic import BaseModel  # pylint: disable=no-name-in-module
 
 
-class PypiProjectUrls(TypedDict):
+class PypiProjectUrls(BaseModel):
     Source: Optional[str]
 
-class PypiPackageInfo(TypedDict):
+class PypiPackageInfo(BaseModel):
     summary: Optional[str]
     version: Optional[str] 
     project_urls: Optional[PypiProjectUrls]
     home_page: Optional[str]
 
-class PypiReleaseUpload(TypedDict):
+    # @validator('project_urls', pre=True)
+    # def ensure_project_urls(cls, val: Any) -> Any:      # pylint: disable=no-self-argument
+    #     return val or []
+
+class PypiReleaseUpload(BaseModel):
     upload_time: str
 
-class PypiEntry(TypedDict):
+class PypiEntry(BaseModel):
     info: PypiPackageInfo
-    releases: Optional[Dict[str, List[PypiReleaseUpload]]]
+    releases: Dict[str, List[PypiReleaseUpload]] = {}

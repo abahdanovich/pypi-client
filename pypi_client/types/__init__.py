@@ -1,19 +1,19 @@
 from dataclasses import dataclass
-from typing import (Callable, ContextManager, Dict, Iterable, List, Optional,
-                    TypedDict, TypeVar)
+from typing import Callable, ContextManager, Iterable, Optional, TypeVar
+
+from pydantic import BaseModel  # pylint: disable=no-name-in-module
 
 
-@dataclass
-class Package:
+class Package(BaseModel):
     name: str
-    summary: Optional[str] = None
-    version: Optional[str] = None
-    home_page: Optional[str] = None
-    downloads: Optional[int] = None
-    stars: Optional[int] = None
-    releases: Optional[int] = None
-    last_release_date: Optional[str] = None
-    score: Optional[int] = None
+    summary: Optional[str]
+    version: Optional[str]
+    home_page: Optional[str]
+    downloads: Optional[int]
+    stars: Optional[int]
+    releases: Optional[int]
+    last_release_date: Optional[str]
+    score: Optional[int]
 
 
 # Progress bar
@@ -21,9 +21,13 @@ Item = TypeVar('Item')
 ProgressBar = Callable[[Iterable[Item], int], ContextManager[Iterable[Item]]]
 
 
-class DeviceFlowVerificationCodes(TypedDict):
+class DeviceFlowVerificationCodes(BaseModel):
     device_code: str
     user_code: str
     verification_uri: str
     expires_in: int
     interval: int
+
+
+class AccessToken(BaseModel):
+    access_token: str

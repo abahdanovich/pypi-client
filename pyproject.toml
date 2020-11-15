@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pypi-client"
-version = "0.1.6"
+version = "0.1.7"
 description = "PyPI command-line tool"
 license = "MIT"
 authors = ["Andrzej Bogdanowicz <bahdanovich@rtbhouse.com>"]
@@ -23,6 +23,7 @@ lxml = "^4.6.1"
 diskcache = "^5.0.3"
 click = "^7.1.2"
 appdirs = "^1.4.4"
+pydantic = "^1.7.2"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.790"

@@ -33,7 +33,7 @@ def get_pkg_pypi_entry(pkg_name: str) -> PypiEntry:
     logging.debug(f'get_pkg_pypi_entry for {pkg_name}')
     response = requests.get(f'https://pypi.org/pypi/{pkg_name}/json')
     response.raise_for_status()
-    return response.json()    
+    return PypiEntry(**response.json())    
 
 
 @cache.memoize()
@@ -42,7 +42,7 @@ def get_pkg_stats(pkg_name: str, last_days: int = 90) -> PackageStats:
     url = 'https://api.pepy.tech/api/v2/projects/' + pkg_name
     response = requests.get(url)
     response.raise_for_status()
-    return response.json()
+    return PackageStats(**response.json())
 
 
 @cache.memoize()
@@ -52,7 +52,7 @@ def get_pkg_github_repo(pkg_repo: str) -> GithubRepo:
     url = 'https://api.github.com/repos/' + '/'.join(repo_name)
     response = requests.get(url, auth=('token', _get_github_oauth_token()))
     response.raise_for_status()
-    return response.json()
+    return GithubRepo(**response.json())
 
 
 @functools.lru_cache(maxsize=None)

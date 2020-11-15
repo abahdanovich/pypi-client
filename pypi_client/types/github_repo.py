@@ -1,5 +1,4 @@
-from typing import TypedDict
+from pydantic import BaseModel  # pylint: disable=no-name-in-module
 
-
-class GithubRepo(TypedDict):
+class GithubRepo(BaseModel):
     stargazers_count: int

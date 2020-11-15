@@ -23,7 +23,7 @@ def cli() -> None:
 def auth_github() -> None:
     """Log into GitHub"""
     with github_device_flow() as verif_codes:
-        print(f'Please open {verif_codes["verification_uri"]} and enter code: {verif_codes["user_code"]}')
+        print(f'Please open {verif_codes.verification_uri} and enter code: {verif_codes.user_code}')
     print('Success')
 
 
