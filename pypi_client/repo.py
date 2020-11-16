@@ -3,16 +3,13 @@ import logging
 from typing import Iterator
 
 import requests
-from appdirs import user_cache_dir
-from diskcache import Cache
 from lxml import html
 
+from . import cache
 from .types.github_repo import GithubRepo
-from .types.pypi_entry import PypiEntry
 from .types.pepy_tech import PackageStats
+from .types.pypi_entry import PypiEntry
 from .user_config import read_oauth_token
-
-cache = Cache(user_cache_dir('pypi-client', 'PyPI'))
 
 
 def get_all_pkg_names() -> Iterator[str]:   

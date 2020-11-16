@@ -7,8 +7,8 @@ from typing import Any, List, Optional, TypeVar
 import click
 from tabulate import tabulate
 
+from . import cache
 from .github_auth import github_device_flow
-from .repo import cache
 from .service import find_packages
 from .types import Package
 
