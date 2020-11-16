@@ -63,11 +63,11 @@ def get_package_info(name: str) -> Package:
         if num_releases := len(releases):
             pkg.releases = num_releases
             if upload_days := {
-                upload.upload_time[:10] 
+                upload.upload_time.date()
                 for uploads in releases.values()
                 for upload in uploads
             }:
-                pkg.last_release_date = max(upload_days)
+                pkg.last_release_date = str(max(upload_days))
 
     if pkg.releases:
         try:
@@ -76,11 +76,11 @@ def get_package_info(name: str) -> Package:
             logging.warn(f'failed to get downloads info for {name}: {e}', RuntimeWarning)
         else:
             all_downloads = stats.downloads
-            day_from = str(date.today() - timedelta(days=90))
+            day_from = date.today() - timedelta(days=90)
             recent_downloads: int = sum([
                 sum(version_downloads.values(), 0)
-                for day_str, version_downloads in all_downloads.items()
-                if day_str > day_from
+                for stats_day, version_downloads in all_downloads.items()
+                if stats_day > day_from
             ], 0)
 
             pkg.downloads = recent_downloads
