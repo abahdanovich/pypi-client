@@ -7,8 +7,8 @@ from typing import Any, List, Optional, TypeVar
 import click
 from tabulate import tabulate
 
-from . import cache
-from .github_auth import github_device_flow
+from . import cache, user_config
+from .github_auth import AccessToken, github_device_flow
 from .service import find_packages
 from .types import Package
 
@@ -22,7 +22,11 @@ def cli() -> None:
 @cli.command()
 def auth_github() -> None:
     """Log into GitHub"""
-    with github_device_flow() as verif_codes:
+
+    def write_token(access_token: AccessToken) -> None:
+        user_config.write_oauth_token(access_token.access_token)
+
+    with github_device_flow(write_token) as verif_codes:
         print(f'Please open {verif_codes.verification_uri} and enter code: {verif_codes.user_code}')
     print('Success')
 
@@ -37,11 +41,11 @@ def validate_pkg_name(ctx: Any, param: Any, value: str) -> str:
 
 @cli.command()
 @click.argument('name-search', callback=validate_pkg_name)
-@click.option('--limit', type=click.IntRange(min=1))
-@click.option('--no-cache', is_flag=True, type=click.BOOL, default=False)
-@click.option('--verbose', is_flag=True, type=click.BOOL, default=False)
-@click.option('--json', "as_json", is_flag=True, type=click.BOOL, default=False)
-@click.option('--threads', type=click.INT, default=10)
+@click.option('--limit', type=click.IntRange(min=1), help='Max number of items to return')
+@click.option('--no-cache', is_flag=True, type=click.BOOL, default=False, help='Clear cache before run')
+@click.option('--verbose', is_flag=True, type=click.BOOL, default=False, help='Print debug messages')
+@click.option('--json', "as_json", is_flag=True, type=click.BOOL, default=False, help='Return in json format')
+@click.option('--threads', type=click.INT, default=10, help='Number of threads to use')
 def search(name_search: str, limit: int, no_cache: bool, verbose: bool, as_json: bool, threads: int) -> None:
     """Search python package by name"""
 

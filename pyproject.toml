@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pypi-client"
-version = "0.1.8"
+version = "0.1.9"
 description = "PyPI command-line tool"
 license = "MIT"
 authors = ["Andrzej Bogdanowicz <bahdanovich@rtbhouse.com>"]

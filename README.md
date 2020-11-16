@@ -39,11 +39,11 @@ Usage: pypi-client search [OPTIONS] NAME_SEARCH
   Search python package by name
 
 Options:
-  --limit INTEGER RANGE
-  --no-cache
-  --verbose
-  --json
-  --threads INTEGER
+  --limit INTEGER RANGE  Max number of items to return
+  --no-cache             Clear cache before run
+  --verbose              Print debug messages
+  --json                 Return in json format
+  --threads INTEGER      Number of threads to use
   --help                 Show this message and exit.
 ```
 

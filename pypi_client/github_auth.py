@@ -1,23 +1,22 @@
 import logging
 import time
 from contextlib import contextmanager
-from typing import Generator
+from typing import Callable, Generator
 from urllib import parse
 
 import requests
 
 from .types import AccessToken, DeviceFlowVerificationCodes
-from .user_config import write_oauth_token
 
 CLIENT_ID = 'da5e9528b63f1bd10fd8'
 
 
 @contextmanager
-def github_device_flow() -> Generator[DeviceFlowVerificationCodes, None, None]:
+def github_device_flow(write_oauth_token: Callable[[AccessToken], None]) -> Generator[DeviceFlowVerificationCodes, None, None]:
     verif_codes: DeviceFlowVerificationCodes = _get_verification_codes()
     yield verif_codes
-    access_token = _wait_for_authorization(verif_codes.device_code, verif_codes.expires_in, verif_codes.interval)
-    write_oauth_token(access_token.access_token)
+    access_token: AccessToken = _wait_for_authorization(verif_codes.device_code, verif_codes.expires_in, verif_codes.interval)
+    write_oauth_token(access_token)
 
 
 def _get_verification_codes() -> DeviceFlowVerificationCodes:
