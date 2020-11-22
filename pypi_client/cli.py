@@ -32,11 +32,11 @@ def auth_github() -> None:
 
 
 def validate_pkg_name(ctx: Any, param: Any, value: str) -> str:
-    MIN_LEN = 4
+    MIN_LEN = 3
     if len(value) < MIN_LEN:
         raise click.BadParameter(f'name too short, min length={MIN_LEN}')
 
-    return value   
+    return value
 
 
 @cli.command()
@@ -53,8 +53,13 @@ def search(name_search: str, limit: int, no_cache: bool, verbose: bool, as_json:
         cache.clear()
 
     logging.basicConfig(level=logging.DEBUG if verbose else logging.ERROR)
-        
-    found_packages = find_packages(name_search, click.progressbar, threads)
+
+    try:
+        found_packages = find_packages(name_search, click.progressbar, threads)
+    except AssertionError as e:
+        print(e)
+        return
+
     sorted_packages = list(reversed(sorted(found_packages, key=attrgetter('score'))))
     if limit:
         sorted_packages = sorted_packages[:limit]
@@ -73,7 +78,7 @@ def _print_as_text(sorted_packages: List[Package]) -> None:
         print(f'Found {pkg_count} packages:')
     else:
         print('No matching packages found')
-        return 
+        return
 
     columns = ['name', 'downloads', 'summary', 'version', 'home_page', 'stars', 'releases', 'last_release_date']
     columns_max_width = {
@@ -86,13 +91,13 @@ def _print_as_text(sorted_packages: List[Package]) -> None:
     def _enforse_max_width(val: Val, max_width: Optional[int]) -> Val:
         if max_width and isinstance(val, str) and len(val) > max_width:
             return val[:max_width] + '...'
-        
+
         return val
 
 
     print(tabulate([
         [
-            _enforse_max_width(getattr(pkg, col), columns_max_width.get(col)) 
+            _enforse_max_width(getattr(pkg, col), columns_max_width.get(col))
             for col in columns
         ]
         for pkg in sorted_packages

@@ -18,22 +18,25 @@ def find_packages(name_search: str, progressbar: ProgressBar, threads: int = 10)
     search_phrases = name_search.lower().split(',')
     def name_matches_phrases(pkg_name: str) -> bool:
         return all(
-            search_phrase in pkg_name 
+            search_phrase in pkg_name
             for search_phrase in search_phrases
         )
 
     all_pkg_names = [name.lower() for name in get_all_pkg_names()]
     matching_pkg_names = [name for name in all_pkg_names if name_matches_phrases(name)]
 
+    MAX_MATCHING_NAMES = 1000
+    assert len(matching_pkg_names) <= MAX_MATCHING_NAMES, f'Too many results to consider (max={MAX_MATCHING_NAMES}), try to use more precise filter'
+
     with ThreadPoolExecutor(threads) as executor:
         futures = [
-            executor.submit(get_package_info, pkg_name) 
+            executor.submit(get_package_info, pkg_name)
             for pkg_name in matching_pkg_names
         ]
 
         with progressbar(as_completed(futures), len(futures)) as bar:
             return [
-                future.result() 
+                future.result()
                 for future in bar
             ]
 
@@ -54,7 +57,7 @@ def get_package_info(name: str) -> Package:
         if info.project_urls:
             src_url = info.project_urls.Source
             if src_url and any(
-                    vcs_name in src_url 
+                    vcs_name in src_url
                     for vcs_name in ['github', 'bitbucket', 'gitlab']
                 ):
                 pkg.home_page = src_url
@@ -84,7 +87,7 @@ def get_package_info(name: str) -> Package:
             ], 0)
 
             pkg.downloads = recent_downloads
-        
+
 
     if pkg.home_page and ('github.com' in pkg.home_page):
         try:
@@ -108,7 +111,7 @@ def _get_score(package: Package) -> int:
     if package.downloads:
         score += math.log10(package.downloads)
 
-    if package.stars:   
+    if package.stars:
         score +=  math.log2(package.stars)
 
     days_from_last_release = (date.today() - date.fromisoformat(package.last_release_date)).days
@@ -125,6 +128,6 @@ def _get_score(package: Package) -> int:
     elif days_from_last_release <= 360:
         score -= 2
     else:
-        score -= 3    
+        score -= 3
 
     return round(score)
