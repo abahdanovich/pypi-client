@@ -3,7 +3,7 @@ from datetime import date, timedelta
 
 import click
 from _pytest.monkeypatch import MonkeyPatch
-from pypi_client import user_config
+from pypi_client import repo
 from pypi_client.repo import cache
 from pypi_client.service import _get_score, find_packages, get_package_info
 from pypi_client.types import Package
@@ -63,7 +63,7 @@ def test_get_package_info(requests_mock: RequestsMocker, monkeypatch: MonkeyPatc
         }
     ))
 
-    monkeypatch.setattr(user_config, "read_oauth_token", lambda: 'foo')
+    monkeypatch.setattr(repo, "read_oauth_token", lambda: 'foo')
 
     requests_mock.get(f'https://api.github.com/repos/{author}/{pkg_name}', text=json.dumps(
         {
