@@ -8,6 +8,7 @@ class PypiProjectUrls(BaseModel):
     Source: Optional[Url]
 
 class PypiPackageInfo(BaseModel):
+    name: str
     summary: Optional[str]
     version: Optional[str] 
     project_urls: Optional[PypiProjectUrls]

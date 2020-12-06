@@ -43,16 +43,16 @@ def validate_pkg_name(ctx: Any, param: Any, value: str) -> str:
 @click.argument('name-search', callback=validate_pkg_name)
 @click.option('--limit', type=click.IntRange(min=1), help='Max number of items to return')
 @click.option('--no-cache', is_flag=True, type=click.BOOL, default=False, help='Clear cache before run')
-@click.option('--verbose', is_flag=True, type=click.BOOL, default=False, help='Print debug messages')
+@click.option('--log-level', type=click.Choice(['ERROR', 'WARN', 'INFO', 'DEBUG']), default='ERROR', help='Logging level')
 @click.option('--json', "as_json", is_flag=True, type=click.BOOL, default=False, help='Return in json format')
 @click.option('--threads', type=click.INT, default=10, help='Number of threads to use')
-def search(name_search: str, limit: int, no_cache: bool, verbose: bool, as_json: bool, threads: int) -> None:
+def search(name_search: str, limit: int, no_cache: bool, log_level: bool, as_json: bool, threads: int) -> None:
     """Search python package by name"""
 
     if no_cache:
         cache.clear()
 
-    logging.basicConfig(level=logging.DEBUG if verbose else logging.ERROR)
+    logging.basicConfig(level=log_level)
 
     try:
         found_packages = find_packages(name_search, click.progressbar, threads)

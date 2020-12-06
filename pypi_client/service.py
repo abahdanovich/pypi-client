@@ -1,13 +1,14 @@
 import logging
 import math
+import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date, timedelta
-from typing import List
+from typing import List, Optional, Set
 
 from requests.exceptions import HTTPError
 
 from .repo import (get_all_pkg_names, get_pkg_github_repo, get_pkg_pypi_entry,
-                   get_pkg_stats)
+                   get_pkg_stats, get_top_pupular_pkg_names)
 from .types import Package, ProgressBar
 from .types.github_repo import GithubRepo
 from .types.pepy_tech import PackageStats
@@ -22,23 +23,62 @@ def find_packages(name_search: str, progressbar: ProgressBar, threads: int = 10)
             for search_phrase in search_phrases
         )
 
-    all_pkg_names = [name.lower() for name in get_all_pkg_names()]
-    matching_pkg_names = [name for name in all_pkg_names if name_matches_phrases(name)]
+    summary_regexps = {
+        re.compile(rf".*\b{phrase}\b.*")
+        for phrase in search_phrases
+    }
+    def summary_matches_phrases(pkg_summary: str) -> bool:
+        return all(
+            regex.match(pkg_summary)
+            for regex in summary_regexps
+        )
 
-    MAX_MATCHING_NAMES = 1000
-    assert len(matching_pkg_names) <= MAX_MATCHING_NAMES, f'Too many results to consider (max={MAX_MATCHING_NAMES}), try to use more precise filter'
+    all_pkg_names = {name.lower() for name in get_all_pkg_names()}
+    all_matching_pkg_names: Set[str] = set(filter(name_matches_phrases, all_pkg_names))
 
     with ThreadPoolExecutor(threads) as executor:
-        futures = [
-            executor.submit(get_package_info, pkg_name)
-            for pkg_name in matching_pkg_names
+        futures1 = [
+            executor.submit(safe_get_pkg_pypi_entry, pkg_name)
+            for pkg_name in get_top_pupular_pkg_names()
         ]
 
-        with progressbar(as_completed(futures), len(futures)) as bar:
-            return [
+        with progressbar(as_completed(futures1), len(futures1)) as bar:
+            pypi_entries: List[PypiEntry] = [
                 future.result()
                 for future in bar
             ]
+
+    pkg_names_matching_by_description = {
+        entry.info.name
+        for entry in pypi_entries
+        if entry and (summary := entry.info.summary) and summary_matches_phrases(summary.lower())
+    }
+    all_matching_pkg_names |= pkg_names_matching_by_description
+
+    MAX_MATCHING_NAMES = 1000
+    assert len(all_matching_pkg_names) <= MAX_MATCHING_NAMES, f'Too many results to consider (max={MAX_MATCHING_NAMES}), try to use more precise filter'
+
+    with ThreadPoolExecutor(threads) as executor:
+        futures2 = [
+            executor.submit(get_package_info, pkg_name)
+            for pkg_name in all_matching_pkg_names
+        ]
+
+        with progressbar(as_completed(futures2), len(futures2)) as bar:
+            packages: List[Package] = [
+                future.result()
+                for future in bar
+            ]
+
+    return packages
+
+
+def safe_get_pkg_pypi_entry(name: str) -> Optional[PypiEntry]:
+    try:
+        return get_pkg_pypi_entry(name)
+    except HTTPError as e:
+        logging.warn(f'failed to get pypi info for {name}: {e}')
+        return None
 
 
 def get_package_info(name: str) -> Package:
@@ -47,7 +87,7 @@ def get_package_info(name: str) -> Package:
     try:
         pypi_info: PypiEntry = get_pkg_pypi_entry(name)
     except HTTPError as e:
-        logging.warn(f'failed to get pypi info for {name}: {e}', RuntimeWarning)
+        logging.warn(f'failed to get pypi info for {name}: {e}')
     else:
         info = pypi_info.info
         pkg.summary = info.summary
@@ -76,7 +116,7 @@ def get_package_info(name: str) -> Package:
         try:
             stats: PackageStats = get_pkg_stats(name)
         except HTTPError as e:
-            logging.warn(f'failed to get downloads info for {name}: {e}', RuntimeWarning)
+            logging.warn(f'failed to get downloads info for {name}: {e}')
         else:
             all_downloads = stats.downloads
             day_from = date.today() - timedelta(days=90)
@@ -93,7 +133,7 @@ def get_package_info(name: str) -> Package:
         try:
             github_repo: GithubRepo = get_pkg_github_repo(pkg.home_page)
         except HTTPError as e:
-            logging.warn(f'failed to get github info for {name}: {e}', RuntimeWarning)
+            logging.warn(f'failed to get github info for {name}: {e}')
         else:
             pkg.stars = github_repo.stargazers_count
 

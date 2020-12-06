@@ -1,6 +1,6 @@
 import functools
 import logging
-from typing import Iterator
+from typing import Iterator, Set
 
 import requests
 from lxml import html
@@ -15,6 +15,14 @@ from .user_config import read_oauth_token
 def get_all_pkg_names() -> Iterator[str]:   
     tree: html.HtmlElement = html.fromstring(_get_all_pkgs_html())
     return tree.xpath('//a/text()')
+
+
+@cache.memoize()
+def get_top_pupular_pkg_names() -> Set[str]:
+    logging.debug('get_top_pupular_pkg_names')
+    response = requests.get('https://hugovk.github.io/top-pypi-packages/top-pypi-packages-365-days.min.json')
+    response.raise_for_status()
+    return {r['project'] for r in response.json().get('rows', [])}    
 
 
 @cache.memoize()

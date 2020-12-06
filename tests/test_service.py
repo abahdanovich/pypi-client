@@ -38,6 +38,7 @@ def test_get_package_info(requests_mock: RequestsMocker, monkeypatch: MonkeyPatc
     requests_mock.get(f'https://pypi.org/pypi/{pkg_name}/json', text=json.dumps(
         {
             "info": {
+                "name": pkg_name,
                 "summary": summary,
                 "version": version,
                 "project_urls": {
@@ -89,6 +90,10 @@ def test_get_package_info(requests_mock: RequestsMocker, monkeypatch: MonkeyPatc
         <a>{pkg_name}</a>
         <a>some-other-package</a>
     ''')
+
+    requests_mock.get('https://hugovk.github.io/top-pypi-packages/top-pypi-packages-365-days.min.json', text=json.dumps({
+        "rows": []
+    }))
 
     cache.clear()
     found_packages = find_packages(pkg_name, click.progressbar)
