@@ -16,7 +16,7 @@ packages = [
 "Bug Tracker" = "https://github.com/abahdanovich/pypi-client/issues"
 
 [tool.poetry.dependencies]
-python = ">=3.7"
+python = ">=3.8"
 tabulate = "^0.8.7"
 requests = "^2.24.0"
 lxml = "^4.6.1"

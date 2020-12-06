@@ -1,7 +1,8 @@
 PyPI client
 ===========
 
-![Lint and test](https://github.com/abahdanovich/pypi-client/workflows/Lint%20and%20test/badge.svg)
+![Lint](https://github.com/abahdanovich/pypi-client/workflows/Lint/badge.svg)
+![Test](https://github.com/abahdanovich/pypi-client/workflows/Test/badge.svg)
 
 CLI tool for searching for a python package by name.
 
