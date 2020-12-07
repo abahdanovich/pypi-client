@@ -2,7 +2,7 @@ import json
 import logging
 from importlib.metadata import version
 from operator import attrgetter
-from typing import Any, List, Optional, TypeVar
+from typing import Any, List, Optional, TypeVar, Final
 
 import click
 from tabulate import tabulate
@@ -26,15 +26,15 @@ def auth_github() -> None:
     def write_token(access_token: AccessToken) -> None:
         user_config.write_oauth_token(access_token.access_token)
 
-    with github_device_flow(write_token) as verif_codes:
-        print(f'Please open {verif_codes.verification_uri} and enter code: {verif_codes.user_code}')
+    with github_device_flow(write_token) as verification_codes:
+        print(f'Please open {verification_codes.verification_uri} and enter code: {verification_codes.user_code}')
     print('Success')
 
 
 def validate_pkg_name(ctx: Any, param: Any, value: str) -> str:
-    MIN_LEN = 3
-    if len(value) < MIN_LEN:
-        raise click.BadParameter(f'name too short, min length={MIN_LEN}')
+    min_len: Final = 3
+    if len(value) < min_len:
+        raise click.BadParameter(f'name too short, min length={min_len}')
 
     return value
 
@@ -43,7 +43,8 @@ def validate_pkg_name(ctx: Any, param: Any, value: str) -> str:
 @click.argument('name-search', callback=validate_pkg_name)
 @click.option('--limit', type=click.IntRange(min=1), help='Max number of items to return')
 @click.option('--no-cache', is_flag=True, type=click.BOOL, default=False, help='Clear cache before run')
-@click.option('--log-level', type=click.Choice(['ERROR', 'WARN', 'INFO', 'DEBUG']), default='ERROR', help='Logging level')
+@click.option('--log-level', type=click.Choice(['ERROR', 'WARN', 'INFO', 'DEBUG']), default='ERROR',
+              help='Logging level')
 @click.option('--json', "as_json", is_flag=True, type=click.BOOL, default=False, help='Return in json format')
 @click.option('--threads', type=click.INT, default=10, help='Number of threads to use')
 def search(name_search: str, limit: int, no_cache: bool, log_level: bool, as_json: bool, threads: int) -> None:
@@ -88,16 +89,16 @@ def _print_as_text(sorted_packages: List[Package]) -> None:
     }
 
     Val = TypeVar('Val', str, int)
-    def _enforse_max_width(val: Val, max_width: Optional[int]) -> Val:
+
+    def _enforce_max_width(val: Val, max_width: Optional[int]) -> Val:
         if max_width and isinstance(val, str) and len(val) > max_width:
             return val[:max_width] + '...'
 
         return val
 
-
     print(tabulate([
         [
-            _enforse_max_width(getattr(pkg, col), columns_max_width.get(col))
+            _enforce_max_width(getattr(pkg, col), columns_max_width.get(col))
             for col in columns
         ]
         for pkg in sorted_packages

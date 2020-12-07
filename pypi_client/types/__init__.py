@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import Callable, ContextManager, Iterable, Optional, TypeVar
 
 from pydantic import BaseModel  # pylint: disable=no-name-in-module

@@ -12,10 +12,13 @@ CLIENT_ID = 'da5e9528b63f1bd10fd8'
 
 
 @contextmanager
-def github_device_flow(write_oauth_token: Callable[[AccessToken], None]) -> Generator[DeviceFlowVerificationCodes, None, None]:
-    verif_codes: DeviceFlowVerificationCodes = _get_verification_codes()
-    yield verif_codes
-    access_token: AccessToken = _wait_for_authorization(verif_codes.device_code, verif_codes.expires_in, verif_codes.interval)
+def github_device_flow(write_oauth_token: Callable[[AccessToken], None]) -> Generator[
+    DeviceFlowVerificationCodes, None, None
+]:
+    verification_codes: DeviceFlowVerificationCodes = _get_verification_codes()
+    yield verification_codes
+    access_token: AccessToken = _wait_for_authorization(verification_codes.device_code, verification_codes.expires_in,
+                                                        verification_codes.interval)
     write_oauth_token(access_token)
 
 

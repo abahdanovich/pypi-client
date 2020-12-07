@@ -2,15 +2,16 @@ import time
 from urllib.parse import urlencode
 
 from _pytest.monkeypatch import MonkeyPatch
-from pypi_client.github_auth import AccessToken, github_device_flow
 from requests_mock.mocker import Mocker as RequestsMocker
+
+from pypi_client.github_auth import AccessToken, github_device_flow
 
 
 def test_github_device_flow(requests_mock: RequestsMocker, monkeypatch: MonkeyPatch) -> None:
     device_code = '111'
     user_code = '123-456'
     verification_uri = 'https://github.com'
-    expires_in = 900 
+    expires_in = 900
     interval = 1
     access_token = 'aaa-ccc'
 
@@ -28,6 +29,7 @@ def test_github_device_flow(requests_mock: RequestsMocker, monkeypatch: MonkeyPa
 
     def noop(s: float) -> None:
         pass
+
     monkeypatch.setattr(time, "sleep", noop)
 
     def write_token(access_token: AccessToken) -> None:

@@ -3,11 +3,12 @@ from datetime import date, timedelta
 
 import click
 from _pytest.monkeypatch import MonkeyPatch
+from requests_mock.mocker import Mocker as RequestsMocker
+
 from pypi_client import repo
 from pypi_client.repo import cache
 from pypi_client.service import _get_score, find_packages, get_package_info
 from pypi_client.types import Package
-from requests_mock.mocker import Mocker as RequestsMocker
 
 
 def test_get_score() -> None:
@@ -91,9 +92,10 @@ def test_get_package_info(requests_mock: RequestsMocker, monkeypatch: MonkeyPatc
         <a>some-other-package</a>
     ''')
 
-    requests_mock.get('https://hugovk.github.io/top-pypi-packages/top-pypi-packages-365-days.min.json', text=json.dumps({
-        "rows": []
-    }))
+    requests_mock.get('https://hugovk.github.io/top-pypi-packages/top-pypi-packages-365-days.min.json',
+                      text=json.dumps({
+                          "rows": []
+                      }))
 
     cache.clear()
     found_packages = find_packages(pkg_name, click.progressbar)

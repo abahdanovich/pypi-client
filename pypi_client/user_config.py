@@ -16,5 +16,5 @@ def read_oauth_token() -> str:
     try:
         with open(config_dir / oauth_token_file, 'r') as f:
             return f.readline()
-    except:
+    except Exception as _:
         raise Exception('Github OAuth token not found, please use `auth-github` command to obtain token')
