@@ -31,6 +31,8 @@ pylint = "^2.6.0"
 pytest = "^6.1.2"
 requests-mock = "^1.8.0"
 coverage = "^5.3"
+blackfire = "^1.5.3"
+py-spy = "^0.3.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

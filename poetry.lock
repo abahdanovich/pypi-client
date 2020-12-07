@@ -42,6 +42,17 @@ tests = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)"
 tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six"]
 
 [[package]]
+name = "blackfire"
+version = "1.5.3"
+description = "Blackfire Python SDK"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+psutil = "5.6.5"
+
+[[package]]
 name = "certifi"
 version = "2020.11.8"
 description = "Python package for providing Mozilla's CA Bundle."
@@ -199,12 +210,31 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 dev = ["pre-commit", "tox"]
 
 [[package]]
+name = "psutil"
+version = "5.6.5"
+description = "Cross-platform lib for process and system monitoring in Python."
+category = "dev"
+optional = false
+python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+
+[package.extras]
+enum = ["enum34"]
+
+[[package]]
 name = "py"
 version = "1.9.0"
 description = "library with cross-python path, ini-parsing, io, code, log facilities"
 category = "dev"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+
+[[package]]
+name = "py-spy"
+version = "0.3.3"
+description = "A Sampling Profiler for Python"
+category = "dev"
+optional = false
+python-versions = "*"
 
 [[package]]
 name = "pydantic"
@@ -365,7 +395,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<4"
-content-hash = "beb62ad603fc282197dfa9ad5ecaeb4795e2825367ab3909c5a411817700c198"
+content-hash = "241b1a700fafbc9d7a8279116e3dcadb98f4edcbbc1f28838bf21671a374b5a1"
 
 [metadata.files]
 appdirs = [
@@ -383,6 +413,43 @@ atomicwrites = [
 attrs = [
     {file = "attrs-20.3.0-py2.py3-none-any.whl", hash = "sha256:31b2eced602aa8423c2aea9c76a724617ed67cf9513173fd3a4f03e3a929c7e6"},
     {file = "attrs-20.3.0.tar.gz", hash = "sha256:832aa3cde19744e49938b91fea06d69ecb9e649c93ba974535d08ad92164f700"},
+]
+blackfire = [
+    {file = "blackfire-1.5.3-cp27-cp27m-macosx_10_14_x86_64.whl", hash = "sha256:a64beecc43e0d6bb26c6531a3314a123d7da2de9297c3bf1a912e494e0493b46"},
+    {file = "blackfire-1.5.3-cp27-cp27m-manylinux1_x86_64.whl", hash = "sha256:a311263b3961e9b38a01e30d1080275c3ad4a0091a1a81e6b697c08f62f2006b"},
+    {file = "blackfire-1.5.3-cp27-cp27m-manylinux2010_x86_64.whl", hash = "sha256:a11bf186fe7b138baa68067828fb050f5c43c6d11f5bafc1721448c1902ce591"},
+    {file = "blackfire-1.5.3-cp27-cp27m-win32.whl", hash = "sha256:9754cf3cdfd98ff8f1b064f02c10a8728482cffce57e2c8dd34d1daa0564a285"},
+    {file = "blackfire-1.5.3-cp27-cp27m-win_amd64.whl", hash = "sha256:5128309c48035f2eeb1c658f77fc259fe8d1e423deddbdc407567dab187da21e"},
+    {file = "blackfire-1.5.3-cp27-cp27mu-manylinux1_x86_64.whl", hash = "sha256:7867d1c1b80eefe02260c3f762b22d5fa2baeffe08bebd633cfc0d57fcc6c6ff"},
+    {file = "blackfire-1.5.3-cp27-cp27mu-manylinux2010_x86_64.whl", hash = "sha256:c41ec59fa489067ff80e752c3dfd9504e5118f134f78277e0aec07efda97fad4"},
+    {file = "blackfire-1.5.3-cp33-cp33m-macosx_10_14_x86_64.whl", hash = "sha256:62836a065fb65d5adb8be23c6a98c98d75b1d6f100bc4b082a98fe2dc1a06ea7"},
+    {file = "blackfire-1.5.3-cp33-cp33m-win32.whl", hash = "sha256:13f4178e5e9a1d4ad42fe28fc1ddba381d602d9a90e8c87ed9636548fc57123e"},
+    {file = "blackfire-1.5.3-cp34-cp34m-macosx_10_14_x86_64.whl", hash = "sha256:b4bea6565ff1cbe7cfbdeae41cff7f85ce024d6970a77b3e1f99f4764428d89b"},
+    {file = "blackfire-1.5.3-cp34-cp34m-win32.whl", hash = "sha256:1b77e4fcefb5d1e2b2a5ae21ad4bf8eb7330b16a8813a2f9216162034e901bb8"},
+    {file = "blackfire-1.5.3-cp35-cp35m-macosx_10_14_x86_64.whl", hash = "sha256:52341123467a4661991267fd2e42aafbf800df946ddaf0ae1a14d9c7498db300"},
+    {file = "blackfire-1.5.3-cp35-cp35m-manylinux1_x86_64.whl", hash = "sha256:2506f967fb6e5ae0f7e31099421a757475f83a1ad682c86fde64eb6865324e1f"},
+    {file = "blackfire-1.5.3-cp35-cp35m-manylinux2010_x86_64.whl", hash = "sha256:43e446ed906c20f38d44b12d042f5457cbcc7cdd8c7055b0b93d05dd816fd785"},
+    {file = "blackfire-1.5.3-cp35-cp35m-win32.whl", hash = "sha256:5626d00472e8fa25075223b68b46e125144aacb8bb09b2e1033de25d7db41af8"},
+    {file = "blackfire-1.5.3-cp35-cp35m-win_amd64.whl", hash = "sha256:cab718160bf055e42e9e4c0730491d13c6c0eba90719c0fc82f05fe64674d67d"},
+    {file = "blackfire-1.5.3-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:8b3e582ab4a1b35d321374f9a55fc8fa20cfb08a629e08886009e398a80a0abe"},
+    {file = "blackfire-1.5.3-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:3a8cbacfb47082bb34d14ead8d9a7901adbb281a740f5585ffc55495862a6df9"},
+    {file = "blackfire-1.5.3-cp36-cp36m-manylinux2010_x86_64.whl", hash = "sha256:d55617a6ee3ccbbd7ecaeb24a328a94f71cf926068158497c5afacaf3f737430"},
+    {file = "blackfire-1.5.3-cp36-cp36m-win32.whl", hash = "sha256:7cec3ae24636aaf7560c8b74808890c556753ab124f20442bf2a9d0eb0dd4c8f"},
+    {file = "blackfire-1.5.3-cp36-cp36m-win_amd64.whl", hash = "sha256:8e5e104f43476e434b76a8d6eea106c90fd8a6b9801549e7277ba3269ffb9a2c"},
+    {file = "blackfire-1.5.3-cp37-cp37m-macosx_10_14_x86_64.whl", hash = "sha256:d313ff3161a5ac9f6a0c255144378c4644b05200e5db7051e0160ee77ca0a89f"},
+    {file = "blackfire-1.5.3-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:c28e55d4d60eaff39908626ac0292f4259475d981769b791abaeae616c9e04b6"},
+    {file = "blackfire-1.5.3-cp37-cp37m-manylinux2010_x86_64.whl", hash = "sha256:00f06275a13df59dd1fba42865b5ca56d9fd36c8ca741db9a8417d53b1a3b1bd"},
+    {file = "blackfire-1.5.3-cp37-cp37m-win32.whl", hash = "sha256:c097656ce291e498f75da7a98d24ed092e47a8d04024daf4d35756d52a6a501b"},
+    {file = "blackfire-1.5.3-cp37-cp37m-win_amd64.whl", hash = "sha256:df183dba9fdeca9efd5c75a81851c8c8f26cbc547564dd2adb6706a5c40450c6"},
+    {file = "blackfire-1.5.3-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:f3616ead395af1e0983204dbac8a3313a8b4081ca8d71371a9ecd99ea9e3f336"},
+    {file = "blackfire-1.5.3-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:2a2324d7e7dc9bee63fb46fbe53ee4f147e4e78158a565220f48183128774895"},
+    {file = "blackfire-1.5.3-cp38-cp38-manylinux2010_x86_64.whl", hash = "sha256:f27b7f4fc217e9e3fcc85d4853a704887263b2bedd6a8eda557b9398883fdf7b"},
+    {file = "blackfire-1.5.3-cp38-cp38-win32.whl", hash = "sha256:113f73828a8fc8b2a2c6d894353da54713d28f95264aae81cf2c54c78adb0cf7"},
+    {file = "blackfire-1.5.3-cp38-cp38-win_amd64.whl", hash = "sha256:ef67c7ac7b0bbe2753d59572171ec0b7bca0a7d2ce383398d7c5113610a1a123"},
+    {file = "blackfire-1.5.3-cp39-cp39-macosx_10_14_x86_64.whl", hash = "sha256:8fa4e51d7d85db1057a049eab12dda2525900bdd43fb60ecff7d23e9a22e6dda"},
+    {file = "blackfire-1.5.3-cp39-cp39-manylinux1_x86_64.whl", hash = "sha256:1f83036c15d9d76a7d416bd81f1b906f1e08009e3cfb70b875c9bb17ba9dcfdc"},
+    {file = "blackfire-1.5.3-cp39-cp39-manylinux2010_x86_64.whl", hash = "sha256:ede5e1c71d3c2e760453638b28bdb4f16196603ca00e33e5c8060bd823135a0a"},
+    {file = "blackfire-1.5.3-cp39-cp39-win_amd64.whl", hash = "sha256:53acce85845db4a45212683b21394f133f21e7ef6c37dacec2215a60f5705bc6"},
 ]
 certifi = [
     {file = "certifi-2020.11.8-py2.py3-none-any.whl", hash = "sha256:1f422849db327d534e3d0c5f02a263458c3955ec0aae4ff09b95f195c59f4edd"},
@@ -546,9 +613,28 @@ pluggy = [
     {file = "pluggy-0.13.1-py2.py3-none-any.whl", hash = "sha256:966c145cd83c96502c3c3868f50408687b38434af77734af1e9ca461a4081d2d"},
     {file = "pluggy-0.13.1.tar.gz", hash = "sha256:15b2acde666561e1298d71b523007ed7364de07029219b604cf808bfa1c765b0"},
 ]
+psutil = [
+    {file = "psutil-5.6.5-cp27-none-win32.whl", hash = "sha256:145e0f3ab9138165f9e156c307100905fd5d9b7227504b8a9d3417351052dc3d"},
+    {file = "psutil-5.6.5-cp27-none-win_amd64.whl", hash = "sha256:3feea46fbd634a93437b718518d15b5dd49599dfb59a30c739e201cc79bb759d"},
+    {file = "psutil-5.6.5-cp35-cp35m-win32.whl", hash = "sha256:348ad4179938c965a27d29cbda4a81a1b2c778ecd330a221aadc7bd33681afbd"},
+    {file = "psutil-5.6.5-cp35-cp35m-win_amd64.whl", hash = "sha256:474e10a92eeb4100c276d4cc67687adeb9d280bbca01031a3e41fb35dfc1d131"},
+    {file = "psutil-5.6.5-cp36-cp36m-win32.whl", hash = "sha256:e3f5f9278867e95970854e92d0f5fe53af742a7fc4f2eba986943345bcaed05d"},
+    {file = "psutil-5.6.5-cp36-cp36m-win_amd64.whl", hash = "sha256:dfb8c5c78579c226841908b539c2374da54da648ee5a837a731aa6a105a54c00"},
+    {file = "psutil-5.6.5-cp37-cp37m-win32.whl", hash = "sha256:021d361439586a0fd8e64f8392eb7da27135db980f249329f1a347b9de99c695"},
+    {file = "psutil-5.6.5-cp37-cp37m-win_amd64.whl", hash = "sha256:e9649bb8fc5cea1f7723af53e4212056a6f984ee31784c10632607f472dec5ee"},
+    {file = "psutil-5.6.5-cp38-cp38-win32.whl", hash = "sha256:47aeb4280e80f27878caae4b572b29f0ec7967554b701ba33cd3720b17ba1b07"},
+    {file = "psutil-5.6.5-cp38-cp38-win_amd64.whl", hash = "sha256:73a7e002781bc42fd014dfebb3fc0e45f8d92a4fb9da18baea6fb279fbc1d966"},
+    {file = "psutil-5.6.5.tar.gz", hash = "sha256:d051532ac944f1be0179e0506f6889833cf96e466262523e57a871de65a15147"},
+]
 py = [
     {file = "py-1.9.0-py2.py3-none-any.whl", hash = "sha256:366389d1db726cd2fcfc79732e75410e5fe4d31db13692115529d34069a043c2"},
     {file = "py-1.9.0.tar.gz", hash = "sha256:9ca6883ce56b4e8da7e79ac18787889fa5206c79dcc67fb065376cd2fe03f342"},
+]
+py-spy = [
+    {file = "py_spy-0.3.3-py2.py3-none-macosx_10_7_x86_64.whl", hash = "sha256:ac0ef13fc2bd67593be1d3fcd1bbee93a6324715b3c2944218e50eadb966c46e"},
+    {file = "py_spy-0.3.3-py2.py3-none-manylinux1_i686.whl", hash = "sha256:72eb5c0495b050e6e9424ea373ff7245a01554e98f218d89f8f979c0cd762681"},
+    {file = "py_spy-0.3.3-py2.py3-none-manylinux1_x86_64.whl", hash = "sha256:e9d6946741c267fe82aef18d2fc1e095a90a83fb5f3d9fc89b0f20a39613a639"},
+    {file = "py_spy-0.3.3-py2.py3-none-win_amd64.whl", hash = "sha256:a165d444cfbf24cdcdfe8cdaa858a179e1fae43adcb912e5efb3151362f67aa8"},
 ]
 pydantic = [
     {file = "pydantic-1.7.3-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:c59ea046aea25be14dc22d69c97bee629e6d48d2b2ecb724d7fe8806bf5f61cd"},
