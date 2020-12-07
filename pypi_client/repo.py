@@ -12,6 +12,7 @@ from .types.pypi_entry import PypiEntry
 from .user_config import read_oauth_token
 
 
+@cache.memoize()
 def get_all_pkg_names() -> Iterator[str]:
     tree: html.HtmlElement = html.fromstring(_get_all_pkgs_html())
     return tree.xpath('//a/text()')
