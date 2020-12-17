@@ -1,9 +1,8 @@
 import logging
 import math
-import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date, timedelta
-from typing import List, Optional, Set, Final
+from typing import List, Optional, Set, Final, Iterator
 
 from requests.exceptions import HTTPError
 
@@ -17,57 +16,19 @@ from .types.pypi_entry import PypiEntry
 
 def find_packages(name_search: str, progressbar: ProgressBar, threads: int = 10) -> List[Package]:
     search_phrases = name_search.lower().split(',')
-
-    def name_matches_phrases(pkg_name: str) -> bool:
-        return all(
-            search_phrase in pkg_name
-            for search_phrase in search_phrases
-        )
-
-    summary_regexps = {
-        re.compile(rf".*\b{phrase}\b.*")
-        for phrase in search_phrases
-    }
-
-    def summary_matches_phrases(pkg_summary: str) -> bool:
-        return all(
-            regex.match(pkg_summary)
-            for regex in summary_regexps
-        )
-
-    all_pkg_names = {name.lower() for name in get_all_pkg_names()}
-    all_matching_pkg_names: Set[str] = set(filter(name_matches_phrases, all_pkg_names))
-
-    with ThreadPoolExecutor(threads) as executor:
-        futures1 = [
-            executor.submit(safe_get_pkg_pypi_entry, pkg_name)
-            for pkg_name in get_top_popular_pkg_names()
-        ]
-
-        with progressbar(as_completed(futures1), len(futures1)) as bar:
-            pypi_entries: List[PypiEntry] = [
-                future.result()
-                for future in bar
-            ]
-
-    pkg_names_matching_by_description = {
-        entry.info.name
-        for entry in pypi_entries
-        if entry and (summary := entry.info.summary) and summary_matches_phrases(summary.lower())
-    }
-    all_matching_pkg_names |= pkg_names_matching_by_description
+    all_matching_pkg_names = _get_pkgs_with_matching_name(search_phrases) | _get_pkgs_with_matching_summary(search_phrases, progressbar, threads)
 
     max_matching_names: Final = 1000
     assert len(all_matching_pkg_names) <= max_matching_names, \
         f'Too many results to consider (max={max_matching_names}), try to use more precise filter'
 
     with ThreadPoolExecutor(threads) as executor:
-        futures2 = [
+        futures = [
             executor.submit(get_package_info, pkg_name)
             for pkg_name in all_matching_pkg_names
         ]
 
-        with progressbar(as_completed(futures2), len(futures2)) as bar:
+        with progressbar(as_completed(futures), len(futures)) as bar:
             packages: List[Package] = [
                 future.result()
                 for future in bar
@@ -76,7 +37,41 @@ def find_packages(name_search: str, progressbar: ProgressBar, threads: int = 10)
     return packages
 
 
-def safe_get_pkg_pypi_entry(name: str) -> Optional[PypiEntry]:
+def _get_pkgs_with_matching_name(search_phrases: List[str]) -> Set[str]:
+    return {
+        pkg_name
+        for pkg_name in get_all_pkg_names()
+        if all(
+            search_phrase in pkg_name.lower()
+            for search_phrase in search_phrases
+        )
+    }
+
+
+def _get_pkgs_with_matching_summary(search_phrases: List[str], progressbar: ProgressBar, threads: int) -> Set[str]:
+    with ThreadPoolExecutor(threads) as executor:
+        futures = [
+            executor.submit(_safe_get_pkg_pypi_entry, pkg_name)
+            for pkg_name in get_top_popular_pkg_names()
+        ]
+
+        with progressbar(as_completed(futures), len(futures)) as bar:
+            top_popular_pkg_pypi_entries: Iterator[PypiEntry] = filter(bool, [
+                future.result()
+                for future in bar
+            ])
+
+    return {
+        entry.info.name
+        for entry in top_popular_pkg_pypi_entries
+        if entry.info and entry.info.summary and all(
+            search_phrase in entry.info.summary.lower().split()
+            for search_phrase in search_phrases
+        )
+    }
+
+
+def _safe_get_pkg_pypi_entry(name: str) -> Optional[PypiEntry]:
     try:
         return get_pkg_pypi_entry(name)
     except HTTPError as e:
