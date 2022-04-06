@@ -21,7 +21,7 @@ def get_all_pkg_names() -> Iterator[str]:
 @cache.memoize()
 def get_top_popular_pkg_names() -> Set[str]:
     logging.debug('get_top_popular_pkg_names')
-    response = requests.get('https://hugovk.github.io/top-pypi-packages/top-pypi-packages-365-days.min.json')
+    response = requests.get('https://hugovk.github.io/top-pypi-packages/top-pypi-packages-30-days.min.json')
     response.raise_for_status()
     return {r['project'] for r in response.json().get('rows', [])}
 
